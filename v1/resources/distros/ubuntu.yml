@@ -35,3 +35,40 @@ ubuntu1804:
     image_publisher: Canonical
     image_offer: UbuntuServer
     image_sku: 18.04-LTS
+ubuntu2004:
+  os: ubuntu
+  distribution: Ubuntu
+  distribution_release: focal
+  distribution_version: 20.04
+  docker:
+    image: ubuntu
+    tag: 20.04
+  qemu:
+    url: https://cloud-images.ubuntu.com/releases/focal/release-20200804/ubuntu-20.04-server-cloudimg-amd64.img
+  iso: &iso
+    url: http://releases.ubuntu.com/releases/20.04/ubuntu-20.04.1-live-server-amd64.iso
+    checksum: 443511f6bf12402c12503733059269a2e10dec602916c0a75263e5d990f6bb93
+    checksumType: sha256
+    shutdown_command: shutdown -P now
+    boot_command: <esc><wait><esc><wait><enter><wait>/install/vmlinuz auto console-setup/ask_detect=false console-setup/layoutcode=us console-setup/modelcode=pc105 debconf/frontend=noninteractive debian-installer=en_US fb=false initrd=/install/initrd.gz kbd-chooser/method=us keyboard-configuration/layout=USA keyboard-configuration/variant=USA locale=en_US netcfg/get_domain=local netcfg/get_hostname=localhost grub-installer/bootdev=/dev/sda preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/preseed.cfg <enter>
+  ami: &ami
+    ssh_username: ubuntu
+    source_ami_filter:
+      filters:
+        "virtualization-type": hvm
+        "name": ubuntu/images/*ubuntu-focal-20.04-amd64-server-*
+        "root-device-type": ebs
+        "architecture": x86_64
+      owners:
+        - "099720109477"
+      most_recent: true
+  vmware-iso:
+    <<: *iso
+  vmware-vmx:
+    <<: *iso
+  amazon-ebs:
+    <<: *ami
+  azure:
+    image_publisher: Canonical
+    image_offer: UbuntuServer
+    image_sku: 20.04-LTS
