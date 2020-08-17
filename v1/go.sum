@@ -156,6 +156,8 @@ github.com/flanksource/konfigadm v0.7.2 h1:zi+cHCttkI6Rv6z4LQgsKG2fW4C9wMyBSOKRk
 github.com/flanksource/konfigadm v0.7.2/go.mod h1:LB3qJk3EkxtS4mvdj8aQZAVS/nqDNRB7sPiEmu/eaw8=
 github.com/flanksource/konfigadm v0.7.3 h1:BzfBRxSf9XmYc8Ri7MlPMX1OrUUYJa6lMhvYTysA8vQ=
 github.com/flanksource/konfigadm v0.7.3/go.mod h1:7EBv59snvd+oIKAGUJWvS1XZrS4iXQ7Rm6myEwEy64E=
+github.com/flanksource/konfigadm v0.9.9 h1:FsqAntHPTD049Ytt9BNzIuoS8/srr3WhwWp1uENRDOw=
+github.com/flanksource/konfigadm v0.9.9/go.mod h1:JXtke3oQkfX+rmAstoIqKMZrK5+YBNZtDPxdkZZGVQc=
 github.com/flanksource/yaml v0.0.0-20200325175021-f76146a3718a h1:Q+lJrx9+38jAYnhDJXeapwUXd+j7hh5+sfC5xfnoF9g=
 github.com/flanksource/yaml v0.0.0-20200325175021-f76146a3718a/go.mod h1:9oTOzfyVuHLV9JRt2ZbzdrX2GpYKQk/+mPPXZIYSH6o=
 github.com/flosch/pongo2 v0.0.0-20181225140029-79872a7b2769 h1:XToLChWPMXLomJ2InnkrmUkddaXfevrmomMTFL+MaKU=
@@ -330,6 +332,8 @@ github.com/hashicorp/vault/sdk v0.1.13 h1:mOEPeOhT7jl0J4AMl1E705+BcmeRs1VmKNb9F0
 github.com/hashicorp/vault/sdk v0.1.13/go.mod h1:B+hVj7TpuQY1Y/GPbCpffmgd+tSEwvhkWnjtSYCaS2M=
 github.com/hashicorp/yamux v0.0.0-20180604194846-3520598351bb/go.mod h1:+NfK9FKeTrX5uv1uIXGdwYDTeHna2qgaIlx54MXqjAM=
 github.com/hashicorp/yamux v0.0.0-20181012175058-2f1d1f20f75d/go.mod h1:+NfK9FKeTrX5uv1uIXGdwYDTeHna2qgaIlx54MXqjAM=
+github.com/helloyi/go-sshclient v0.0.0-20200729145748-988808eb5279 h1:zKVVHAjbtzXyxBxZgu9Hcjbi7yx2uJGF0FaCqwvgbrk=
+github.com/helloyi/go-sshclient v0.0.0-20200729145748-988808eb5279/go.mod h1:SONC5bXENAC+Y960BqCKzML+BP2/kF1RWeXNdJfysYg=
 github.com/hetznercloud/hcloud-go v1.15.1/go.mod h1:8lR3yHBHZWy2uGcUi9Ibt4UOoop2wrVdERJgCtxsF3Q=
 github.com/hpcloud/tail v1.0.0/go.mod h1:ab1qPbhIpdTxEkNHXyeSf5vhxWSCs/tWer42PpOxQnU=
 github.com/hyperonecom/h1-client-go v0.0.0-20190122232013-cf38e8387775/go.mod h1:R9rU87RxxmcD3DkspW9JqGBXiJyg5MA+WNCtJrBtnXs=
@@ -601,6 +605,8 @@ golang.org/x/crypto v0.0.0-20191112222119-e1110fd1c708/go.mod h1:LzIPMQfyMNhhGPh
 golang.org/x/crypto v0.0.0-20200311171314-f7b00557c8c4/go.mod h1:LzIPMQfyMNhhGPhUkYOs5KpL4U8rLKemX1yGLhDgUto=
 golang.org/x/crypto v0.0.0-20200317142112-1b76d66859c6 h1:TjszyFsQsyZNHwdVdZ5m7bjmreu0znc2kRYsEml9/Ww=
 golang.org/x/crypto v0.0.0-20200317142112-1b76d66859c6/go.mod h1:LzIPMQfyMNhhGPhUkYOs5KpL4U8rLKemX1yGLhDgUto=
+golang.org/x/crypto v0.0.0-20200728195943-123391ffb6de h1:ikNHVSjEfnvz6sxdSPCaPt572qowuyMDMJLLm3Db3ig=
+golang.org/x/crypto v0.0.0-20200728195943-123391ffb6de/go.mod h1:LzIPMQfyMNhhGPhUkYOs5KpL4U8rLKemX1yGLhDgUto=
 golang.org/x/exp v0.0.0-20190121172915-509febef88a4/go.mod h1:CJ0aWSM057203Lf6IL+f9T1iT9GByDxfZKAQTCR3kQA=
 golang.org/x/exp v0.0.0-20190510132918-efd6b22b2522/go.mod h1:ZjyILWgesfNpC6sMxTJOJm9Kp84zZh5NQWvqDGG3Qr8=
 golang.org/x/image v0.0.0-20190227222117-0694c2d4d067/go.mod h1:kZ7UVZpmo3dzQBMxlp+ypCbDeSB+sBbTgSJuh5dn5js=

@@ -34,7 +34,11 @@ type Distribution interface {
 }
 
 func GetDistroByName(name string) (Distribution, error) {
-	if v, ok := Distributions[name]; ok {
+	distributions, err := GetDistributions()
+	if err != nil {
+		return nil, err
+	}
+	if v, ok := distributions[name]; ok {
 		return v, nil
 	}
 	return nil, fmt.Errorf("Unknown distro name: %s", name)

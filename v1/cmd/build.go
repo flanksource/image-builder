@@ -117,7 +117,6 @@ func getContext(cmd *cobra.Command, args []string) (*pkg.BuildContext, error) {
 
 	// get the distribution details for the OS / Driver combo
 	from := distro.GetDistribution().GetImageByKind(input.Kind())
-
 	// merge the image details (e.g. URL / AMI) into the user-provided config
 	input, err = api.Merge(input, from)
 	if err != nil {
@@ -126,7 +125,7 @@ func getContext(cmd *cobra.Command, args []string) (*pkg.BuildContext, error) {
 	dryRun, _ := cmd.Flags().GetBool("dry-run")
 
 	var defaults map[string]map[string]interface{}
-	if err := yaml.Unmarshal(resources.FSMustByte(false, "defaults.yml"), &defaults); err != nil {
+	if err := yaml.Unmarshal(resources.FSMustByte(false, "/defaults.yml"), &defaults); err != nil {
 		return nil, err
 	}
 	ctx := &pkg.BuildContext{
