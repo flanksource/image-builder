@@ -1,10 +1,10 @@
 distroName: ubuntu1804
 input:
-  kind: docker
+  kind: qemu
 output:
-  - kind: docker
+  - kind: qemu
 engine:
-  kind: docker
+  kind: qemu
 cleanup: false
 packages:
   - systemd
