@@ -104,7 +104,6 @@ func getContext(cmd *cobra.Command, args []string) (*pkg.BuildContext, error) {
 		outputs = append(outputs, output)
 	}
 
-	// logger.Prettyf("COnfig:", *config)
 	engine, err := getEngine(config)
 	if err != nil {
 		return nil, stacktrace.Propagate(err, "unable to parse engine")
@@ -126,7 +125,7 @@ func getContext(cmd *cobra.Command, args []string) (*pkg.BuildContext, error) {
 	dryRun, _ := cmd.Flags().GetBool("dry-run")
 
 	var defaults map[string]map[string]interface{}
-	if err := yaml.Unmarshal(resources.FSMustByte(false, "defaults.yml"), &defaults); err != nil {
+	if err := yaml.Unmarshal(resources.FSMustByte(false, "/defaults.yml"), &defaults); err != nil {
 		return nil, err
 	}
 	ctx := &pkg.BuildContext{
