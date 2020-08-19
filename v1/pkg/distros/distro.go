@@ -19,6 +19,7 @@ package distros
 import (
 	"fmt"
 	"io/ioutil"
+	"strings"
 
 	"gopkg.in/flanksource/yaml.v3"
 	"sigs.k8s.io/image-builder/api"
@@ -41,7 +42,11 @@ func GetDistroByName(name string) (Distribution, error) {
 	if v, ok := distributions[name]; ok {
 		return v, nil
 	}
-	return nil, fmt.Errorf("Unknown distro name: %s", name)
+	names := []string{}
+	for k, _ := range distros {
+		names = append(names, k)
+	}
+	return nil, fmt.Errorf("Unknown distro name: %s, valid options are: %s", name, strings.Join(names, ","))
 }
 
 func GetDistro(distro api.Distribution) (Distribution, error) {

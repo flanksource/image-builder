@@ -104,7 +104,6 @@ func getContext(cmd *cobra.Command, args []string) (*pkg.BuildContext, error) {
 		outputs = append(outputs, output)
 	}
 
-	// logger.Prettyf("COnfig:", *config)
 	engine, err := getEngine(config)
 	if err != nil {
 		return nil, stacktrace.Propagate(err, "unable to parse engine")

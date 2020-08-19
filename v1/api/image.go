@@ -294,6 +294,13 @@ func GetImage(opts map[string]interface{}) (Image, error) {
 			return nil, err
 		}
 		return driver, nil
+
+	case "docker":
+		driver := DockerImage{}
+		if err := decode(opts, &driver); err != nil {
+			return nil, err
+		}
+		return driver, nil
 	}
 	return nil, fmt.Errorf("unknown driver kind %s", opts["kind"])
 }
@@ -317,51 +324,51 @@ func Merge(input Image, from Image) (Image, error) {
 		return input, nil
 	}
 	switch from.(type) {
-	case AMI:
+	case *AMI:
 		amiImage := input.(AMI)
-		if err := mergo.Merge(&amiImage, from.(AMI)); err != nil {
+		if err := mergo.Merge(&amiImage, from.(*AMI)); err != nil {
 			return nil, err
 		}
 		return amiImage, nil
-	case ISO:
+	case *ISO:
 		isoImage := input.(ISO)
-		if err := mergo.Merge(&isoImage, from.(ISO)); err != nil {
+		if err := mergo.Merge(&isoImage, from.(*ISO)); err != nil {
 			return nil, err
 		}
 		return isoImage, nil
-	case DockerImage:
+	case *DockerImage:
 		dockerImage := input.(DockerImage)
-		if err := mergo.Merge(&dockerImage, from.(DockerImage)); err != nil {
+		if err := mergo.Merge(&dockerImage, from.(*DockerImage)); err != nil {
 			return nil, err
 		}
 		return dockerImage, nil
-	case DiskImage:
+	case *DiskImage:
 		diskImage := input.(DiskImage)
-		if err := mergo.Merge(&diskImage, from.(DiskImage)); err != nil {
+		if err := mergo.Merge(&diskImage, from.(*DiskImage)); err != nil {
 			return nil, err
 		}
 		return diskImage, nil
-	case GCEImage:
+	case *GCEImage:
 		gceImage := input.(GCEImage)
-		if err := mergo.Merge(&gceImage, from.(GCEImage)); err != nil {
+		if err := mergo.Merge(&gceImage, from.(*GCEImage)); err != nil {
 			return nil, err
 		}
 		return gceImage, nil
-	case AzureImage:
+	case *AzureImage:
 		azureImage := input.(AzureImage)
-		if err := mergo.Merge(&azureImage, from.(AzureImage)); err != nil {
+		if err := mergo.Merge(&azureImage, from.(*AzureImage)); err != nil {
 			return nil, err
 		}
 		return azureImage, nil
-	case OVA:
+	case *OVA:
 		ovaImage := input.(OVA)
-		if err := mergo.Merge(&ovaImage, from.(OVA)); err != nil {
+		if err := mergo.Merge(&ovaImage, from.(*OVA)); err != nil {
 			return nil, err
 		}
 		return ovaImage, nil
-	case VMDK:
+	case *VMDK:
 		vmdk := input.(VMDK)
-		if err := mergo.Merge(&vmdk, from.(VMDK)); err != nil {
+		if err := mergo.Merge(&vmdk, from.(*VMDK)); err != nil {
 			return nil, err
 		}
 		return vmdk, nil
