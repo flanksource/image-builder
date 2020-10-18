@@ -41,7 +41,6 @@ ubuntu1804:
     image_sku: 18.04-LTS
 
 ubuntu2004:
-  ubuntu1804:
   os: ubuntu
   distribution: Ubuntu
   distribution_release: focal fossa

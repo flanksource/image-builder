@@ -116,7 +116,6 @@ func getContext(cmd *cobra.Command, args []string) (*pkg.BuildContext, error) {
 
 	// get the distribution details for the OS / Driver combo
 	from := distro.GetDistribution().GetImageByKind(input.Kind())
-
 	// merge the image details (e.g. URL / AMI) into the user-provided config
 	input, err = api.Merge(input, from)
 	if err != nil {

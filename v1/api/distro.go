@@ -41,19 +41,40 @@ func (d Distribution) String() string {
 func (d Distribution) GetImageByKind(kind string) Image {
 	switch kind {
 	case "qemu", "img", "qcow2":
-		return d.Qemu
+		if d.Qemu == nil {
+			return nil
+		}
+		return *d.Qemu
 	case "ova", "vpshere", "vm":
-		return d.OVA
+		if d.OVA == nil {
+			return nil
+		}
+		return *d.OVA
 	case "ami", "amazon-ebs", "aws":
-		return d.AMI
+		if d.AMI == nil {
+			return nil
+		}
+		return *d.AMI
 	case "azure":
-		return d.Azure
+		if d.Azure == nil {
+			return nil
+		}
+		return *d.Azure
 	case "gce":
-		return d.GCE
+		if d.GCE == nil {
+			return nil
+		}
+		return *d.GCE
 	case "docker":
-		return d.Docker
+		if d.Docker == nil {
+			return nil
+		}
+		return *d.Docker
 	case "iso":
-		return d.ISO
+		if d.ISO == nil {
+			return nil
+		}
+		return *d.ISO
 	}
 	return nil
 
