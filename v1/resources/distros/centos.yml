@@ -14,14 +14,17 @@ centos76: &centos76
   os_display_name: CentOS 7
   guest_os_type: centos-64
   ami:
-    filters:
-      virtualization-type: hvm
-      name: CentOS Linux 7 x86_64 HVM EBS ENA*
-      root-device-type: ebs
-      architecture: x86_64
-    owners:
-      - "410186602215"
-    most_recent: true
+    root_device_name: /dev/sda1
+    ssh_username: centos
+    source_ami_filter:
+      filters:
+        virtualization-type: hvm
+        name: CentOS Linux 7 x86_64 HVM EBS ENA*
+        root-device-type: ebs
+        architecture: x86_64
+      owners:
+        - "410186602215"
+      most_recent: true
   vmware-iso:
     <<: *isocentos76
   vmware-vmx:
@@ -48,14 +51,17 @@ centos78: &centos78
   os_display_name: CentOS 7
   guest_os_type: centos-64
   ami: &ami
-    filters:
-      virtualization-type: hvm
-      name: CentOS Linux 7 x86_64 HVM EBS ENA*
-      root-device-type: ebs
-      architecture: x86_64
-    owners:
-      - "410186602215"
-    most_recent: true
+    root_device_name: /dev/sda1
+    ssh_username: centos
+    source_ami_filter:
+      filters:
+        virtualization-type: hvm
+        name: CentOS Linux 7 x86_64 HVM EBS ENA*
+        root-device-type: ebs
+        architecture: x86_64
+      owners:
+        - "410186602215"
+      most_recent: true
   vmware-iso:
     <<: *centos78
   vmware-vmx:
@@ -86,14 +92,17 @@ centos82: &centos82
   os_display_name: CentOS 8
   guest_os_type: centos-64
   ami: &ami
-    filters:
-      virtualization-type: hvm
-      name: CentOS Linux 8 x86_64 HVM EBS ENA*
-      root-device-type: ebs
-      architecture: x86_64
-    owners:
-      - "410186602215"
-    most_recent: true
+    root_device_name: /dev/sda1
+    ssh_username: centos
+    source_ami_filter:
+      filters:
+        virtualization-type: hvm
+        name: CentOS Linux 8 x86_64 HVM EBS ENA*
+        root-device-type: ebs
+        architecture: x86_64
+      owners:
+        - "410186602215"
+      most_recent: true
   vmware-iso:
     <<: *isocentos82
   vmware-vmx:

@@ -20,6 +20,7 @@ ubuntu1804:
     boot_command: <esc><wait><esc><wait><enter><wait>/install/vmlinuz auto console-setup/ask_detect=false console-setup/layoutcode=us console-setup/modelcode=pc105 debconf/frontend=noninteractive debian-installer=en_US fb=false initrd=/install/initrd.gz kbd-chooser/method=us keyboard-configuration/layout=USA keyboard-configuration/variant=USA locale=en_US netcfg/get_domain=local netcfg/get_hostname=localhost grub-installer/bootdev=/dev/sda preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/preseed.cfg <enter>
   ami: &ami
     ssh_username: ubuntu
+    root_device_name: /dev/sda1
     source_ami_filter:
       filters:
         "virtualization-type": hvm
@@ -66,6 +67,7 @@ ubuntu2004:
     boot_command: <esc><wait><esc><wait><enter><wait>/install/vmlinuz auto console-setup/ask_detect=false console-setup/layoutcode=us console-setup/modelcode=pc105 debconf/frontend=noninteractive debian-installer=en_US fb=false initrd=/install/initrd.gz kbd-chooser/method=us keyboard-configuration/layout=USA keyboard-configuration/variant=USA locale=en_US netcfg/get_domain=local netcfg/get_hostname=localhost grub-installer/bootdev=/dev/sda preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/preseed.cfg  -- <wait><enter><wait>
   ami: &ami
     ssh_username: ubuntu
+    root_device_name: /dev/sda1
     source_ami_filter:
       filters:
         "virtualization-type": hvm
