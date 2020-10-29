@@ -1,0 +1,37 @@
+input:
+  kind: gceDisk
+engine:
+  kind: packer
+  version: 1.6.0
+  builders:
+    gce:
+
+commands:
+curl  https://sdk.cloud.google.com | bash -o errexit -o pipefail /tmp/install-gcloud.sh --disable-prompts --install-dir=/
+# ---
+# - name: Download gcloud SDK
+#   get_url:
+# aaa    url:  https://sdk.cloud.google.com/
+#     dest: /tmp/install-gcloud.sh
+#     mode: 0700
+
+# - name: Execute install-gcloud.sh
+#   shell: bash -o errexit -o pipefail /tmp/install-gcloud.sh --disable-prompts --install-dir=/
+
+# - name: Remove install-gcloud.sh
+#   file:
+#     path:  /tmp/install-gcloud.sh
+#     state: absent
+
+# - name: Find all files in /google-cloud-sdk/bin/
+#   find:
+#     paths: /google-cloud-sdk/bin/
+#   register: find
+
+# - name: Create symlinks to /bin
+#   become: True
+#   file:
+#     src: "{{ item.path }}"
+#     path: "/bin/{{ item.path | basename }}"
+#     state: link
+#   with_items: "{{ find.files }}"

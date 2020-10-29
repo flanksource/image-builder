@@ -19,8 +19,12 @@ package cmd
 import (
 	"fmt"
 	"io/ioutil"
+	"strconv"
+	"strings"
 
 	"github.com/flanksource/commons/logger"
+	"github.com/flanksource/commons/lookup"
+	"github.com/imdario/mergo"
 	"github.com/palantir/stacktrace"
 
 	// initialize konfigadm
@@ -52,16 +56,16 @@ func getEngine(opts *api.KubernetesConfiguration) (pkg.Engine, error) {
 	}
 }
 
-func getConfig(cmd *cobra.Command, args []string) (*api.KubernetesConfiguration, error) {
+func parseConfig(configFile string) (*api.KubernetesConfiguration, map[string]interface{}, error) {
 	var config = &api.KubernetesConfiguration{}
 	data, err := ioutil.ReadFile(configFile)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	// 1st run: unmarshall using konfigadm as a subkey
 	if err := yaml.Unmarshal(data, config); err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	// 2nd run: unmarshall the root yaml, so that an image-builder yaml can be
@@ -69,22 +73,78 @@ func getConfig(cmd *cobra.Command, args []string) (*api.KubernetesConfiguration,
 	konfigadmSpec := &konfigadm.Config{}
 	konfigadmSpec.Init()
 	if err := yaml.Unmarshal(data, konfigadmSpec); err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	config.Konfigadm.Init()
 	konfigadmSpec.ImportConfig(config.Konfigadm)
 	config.Konfigadm = *konfigadmSpec
 	data, err = yaml.Marshal(config)
 	if err != nil {
-		return nil, fmt.Errorf("failed to round-trip YAML: %v", err)
+		return nil, nil, fmt.Errorf("failed to round-trip YAML: %v", err)
 	}
 
-	logger.Secretf("\n%s", string(data))
-	return config, nil
+	raw := make(map[string]interface{})
+	if err := yaml.Unmarshal(data, &raw); err != nil {
+		return nil, nil, fmt.Errorf("failed to unmarshal to map[string]interface: %v", err)
+	}
+	return config, raw, nil
+
+}
+func getConfig(cmd *cobra.Command, args []string) (*api.KubernetesConfiguration, map[string]interface{}, error) {
+	var base *api.KubernetesConfiguration
+	var rawBase map[string]interface{}
+	for _, config := range configFile {
+		cfg, raw, err := parseConfig(config)
+		if err != nil {
+			return nil, nil, err
+		}
+		if base == nil {
+			base = cfg
+			rawBase = raw
+		} else {
+			if err := mergo.Merge(base, cfg); err != nil {
+				return nil, nil, err
+			}
+			if err := mergo.Merge(&rawBase, raw); err != nil {
+				return nil, nil, err
+			}
+
+		}
+	}
+	extras, _ := cmd.Flags().GetStringSlice("extras")
+	for _, extra := range extras {
+		key := strings.Split(extra, "=")[0]
+		val := extra[len(key)+1:]
+		logger.Debugf("Looking up %s to set it to: %s", key, val)
+
+		value, err := lookup.LookupString(&base, key)
+		if err != nil {
+			logger.Fatalf("Cannot lookup %s: %v", key, err)
+		}
+		logger.Infof("Overriding %s %v => %v", key, value, val)
+		switch value.Interface().(type) {
+		case string:
+			value.SetString(val)
+		case int:
+			i, err := strconv.ParseInt(val, 10, 64)
+			if err != nil {
+				logger.Fatalf("Cannot convert %s to int", val)
+			}
+			value.SetInt(i)
+		case bool:
+			b, err := strconv.ParseBool(val)
+			if err != nil {
+				logger.Fatalf("Cannot convert %s to a boolean", val)
+			}
+			value.SetBool(b)
+		}
+	}
+
+	return base, rawBase, nil
 }
 
 func getContext(cmd *cobra.Command, args []string) (*pkg.BuildContext, error) {
-	config, err := getConfig(cmd, args)
+	config, raw, err := getConfig(cmd, args)
 	if err != nil {
 		return nil, err
 	}
@@ -114,6 +174,7 @@ func getContext(cmd *cobra.Command, args []string) (*pkg.BuildContext, error) {
 		return nil, fmt.Errorf("cannot find distro: %s", config.DistroName)
 	}
 
+	logger.Tracef("Found distro for %s: %s ", config.DistroName, distro)
 	// get the distribution details for the OS / Driver combo
 	from := distro.GetDistribution().GetImageByKind(input.Kind())
 	// merge the image details (e.g. URL / AMI) into the user-provided config
@@ -121,6 +182,8 @@ func getContext(cmd *cobra.Command, args []string) (*pkg.BuildContext, error) {
 	if err != nil {
 		return nil, err
 	}
+	logger.Infof("Found image for %s: %#v", input.Kind(), from)
+
 	dryRun, _ := cmd.Flags().GetBool("dry-run")
 
 	var defaults map[string]map[string]interface{}
@@ -128,6 +191,7 @@ func getContext(cmd *cobra.Command, args []string) (*pkg.BuildContext, error) {
 		return nil, err
 	}
 	ctx := &pkg.BuildContext{
+		Raw:      raw,
 		Input:    input,
 		Output:   outputs,
 		Engine:   engine,
@@ -141,8 +205,6 @@ func getContext(cmd *cobra.Command, args []string) (*pkg.BuildContext, error) {
 	return ctx, nil
 }
 
-var configFile string
-
 var Build = cobra.Command{
 	Use:   "build",
 	Short: "Build an image ",
@@ -155,8 +217,15 @@ var Build = cobra.Command{
 		}
 		logger.Secretf("%s", ctx)
 
-		ctx.Config.Konfigadm.Context.Flags = phases.OperatingSystems[ctx.Distro.GetDistribution().OS].GetTags()
-
+		if os, ok := phases.OperatingSystems[ctx.Distro.GetDistribution().OS]; !ok {
+			names := []string{}
+			for k := range phases.OperatingSystems {
+				names = append(names, k)
+			}
+			return fmt.Errorf("Unsupported OS by konfigadm: %v, supported os: %v", ctx.Distro.GetDistribution().OS, names)
+		} else {
+			ctx.Config.Konfigadm.Context.Flags = os.GetTags()
+		}
 		// Configures an image and returns the result or an error
 		outputImage, err := ctx.Engine.Configure(*ctx)
 		if err != nil {
@@ -175,6 +244,9 @@ var Build = cobra.Command{
 			}
 			ctx.Input = converted
 		}
+		if ctx.DryRun {
+			return nil
+		}
 
 		if ctx.Input == nil {
 			logger.Fatalf("empty image created")
@@ -186,6 +258,8 @@ var Build = cobra.Command{
 	},
 }
 
+var configFile []string
+
 func init() {
 
 	Engines = make(map[string]pkg.Engine)
@@ -193,7 +267,8 @@ func init() {
 	for _, engine := range []pkg.Engine{engines.Qemu{}, engines.Docker{}, engines.Packer{}, engines.NullEngine} {
 		Engines[engine.Kind()] = engine
 	}
-	logger.Infof("Engines: %s", Engines)
+	logger.Tracef("Engines: %s", Engines)
 	Build.PersistentFlags().Bool("dry-run", false, "")
-	Build.Flags().StringVarP(&configFile, "config", "c", "image-builder.yaml", "")
+	Build.PersistentFlags().StringSliceP("extras", "e", []string{}, "Extra variables to override, in the form of var=value")
+	Build.Flags().StringSliceVarP(&configFile, "config", "c", []string{"image-builder.yaml"}, "")
 }

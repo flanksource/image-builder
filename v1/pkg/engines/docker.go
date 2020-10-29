@@ -55,6 +55,10 @@ func (d Docker) Configure(ctx pkg.BuildContext) (api.Image, error) {
 		}
 		dockerfile += fmt.Sprintf("RUN %s\n", cmd)
 	}
+	if ctx.DryRun {
+		fmt.Println(dockerfile)
+		return api.DockerImage{}, nil
+	}
 	tmp := fmt.Sprintf("Dockerfile.image-builder")
 	defer os.Remove(tmp)
 

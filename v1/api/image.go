@@ -17,8 +17,10 @@
 package api
 
 import (
+	"encoding/json"
 	"fmt"
 
+	"github.com/flanksource/commons/logger"
 	"github.com/imdario/mergo"
 	"github.com/mitchellh/mapstructure"
 )
@@ -26,7 +28,7 @@ import (
 type Image interface {
 	Kind() string
 	String() string
-	GetPackerOptions() (*PackerBuilderOptions, error)
+	GetPackerOptions() (PackerBuilderOptions, error)
 	GetQemuOptions() (*QemuOptions, error)
 }
 
@@ -43,12 +45,14 @@ const (
 )
 
 type AMI struct {
-	Tags    map[string]string `yaml:"tags,omitempty" structs:"tags,omitempty" json:"tags,omitempty"`
-	Name    string            `yaml:"name,omitempty" structs:"name,omitempty" json:"name,omitempty"`
-	ID      string            `yaml:"id,omitempty" structs:"owners,omitempty" json:"id,omitempty"`
-	Region  string            `yaml:"region,omitempty" structs:"owners,omitempty" json:"region,omitempty"`
-	Account string            `yaml:"account,omitempty" structs:"owners,omitempty" json:"account,omitempty"`
-	Owners  []string          `yaml:"owners,omitempty" structs:"owners,omitempty" json:"owners,omitempty"`
+	Tags        map[string]string      `yaml:"tags,omitempty" structs:"tags,omitempty" json:"tags,omitempty"`
+	Name        string                 `yaml:"name,omitempty" structs:"name,omitempty" json:"name,omitempty"`
+	ID          string                 `yaml:"id,omitempty" structs:"owners,omitempty" json:"id,omitempty"`
+	Region      string                 `yaml:"region,omitempty" structs:"owners,omitempty" json:"region,omitempty"`
+	Account     string                 `yaml:"account,omitempty" structs:"owners,omitempty" json:"account,omitempty"`
+	Owners      []string               `yaml:"owners,omitempty" structs:"owners,omitempty" json:"owners,omitempty"`
+	SSHUsername string                 `structs:"ssh_username,omitempty" yaml:"ssh_username,omitempty" json:"ssh_username,omitempty"`
+	Filters     map[string]interface{} `structs:"source_ami_filter,omitempty" yaml:"source_ami_filter,omitempty" json:"source_ami_filter,omitempty"`
 }
 
 func (i AMI) Kind() string {
@@ -58,8 +62,8 @@ func (i AMI) Kind() string {
 func (i AMI) String() string {
 	return i.ID
 }
-func (i AMI) GetPackerOptions() (*PackerBuilderOptions, error) {
-	return nil, nil
+func (i AMI) GetPackerOptions() (PackerBuilderOptions, error) {
+	return encode(i)
 }
 
 func (i AMI) GetQemuOptions() (*QemuOptions, error) {
@@ -81,8 +85,8 @@ func (i AzureImage) String() string {
 	return AzureKind
 }
 
-func (i AzureImage) GetPackerOptions() (*PackerBuilderOptions, error) {
-	return nil, nil
+func (i AzureImage) GetPackerOptions() (PackerBuilderOptions, error) {
+	return encode(i)
 }
 
 func (i AzureImage) GetQemuOptions() (*QemuOptions, error) {
@@ -104,8 +108,8 @@ func (i DiskImage) Kind() string {
 	return DiskImageKind
 }
 
-func (i DiskImage) GetPackerOptions() (*PackerBuilderOptions, error) {
-	return nil, nil
+func (i DiskImage) GetPackerOptions() (PackerBuilderOptions, error) {
+	return encode(i)
 }
 
 func (i DiskImage) GetQemuOptions() (*QemuOptions, error) {
@@ -122,8 +126,8 @@ type DockerImage struct {
 	Checksum string `yaml:"checksum,omitempty" `
 }
 
-func (i DockerImage) GetPackerOptions() (*PackerBuilderOptions, error) {
-	return nil, nil
+func (i DockerImage) GetPackerOptions() (PackerBuilderOptions, error) {
+	return encode(i)
 }
 
 func (i DockerImage) GetQemuOptions() (*QemuOptions, error) {
@@ -151,8 +155,8 @@ func (i GCEImage) Kind() string {
 	return GCEImageKind
 }
 
-func (i GCEImage) GetPackerOptions() (*PackerBuilderOptions, error) {
-	return nil, nil
+func (i GCEImage) GetPackerOptions() (PackerBuilderOptions, error) {
+	return encode(i)
 }
 
 func (i GCEImage) GetQemuOptions() (*QemuOptions, error) {
@@ -175,8 +179,8 @@ func (i ISO) String() string {
 	return i.URL
 }
 
-func (i ISO) GetPackerOptions() (*PackerBuilderOptions, error) {
-	return nil, nil
+func (i ISO) GetPackerOptions() (PackerBuilderOptions, error) {
+	return encode(i)
 }
 
 func (i ISO) GetQemuOptions() (*QemuOptions, error) {
@@ -197,8 +201,8 @@ func (i OVA) String() string {
 	return i.URL
 }
 
-func (i OVA) GetPackerOptions() (*PackerBuilderOptions, error) {
-	return nil, nil
+func (i OVA) GetPackerOptions() (PackerBuilderOptions, error) {
+	return encode(i)
 }
 
 func (i OVA) GetQemuOptions() (*QemuOptions, error) {
@@ -220,8 +224,8 @@ func (i VM) String() string {
 	return i.Name
 }
 
-func (i VM) GetPackerOptions() (*PackerBuilderOptions, error) {
-	return nil, nil
+func (i VM) GetPackerOptions() (PackerBuilderOptions, error) {
+	return encode(i)
 }
 
 func (i VM) GetQemuOptions() (*QemuOptions, error) {
@@ -240,8 +244,8 @@ func (i VMDK) String() string {
 	return i.URL
 }
 
-func (i VMDK) GetPackerOptions() (*PackerBuilderOptions, error) {
-	return nil, nil
+func (i VMDK) GetPackerOptions() (PackerBuilderOptions, error) {
+	return encode(i)
 }
 
 func (i VMDK) GetQemuOptions() (*QemuOptions, error) {
@@ -270,7 +274,7 @@ func GetImage(opts map[string]interface{}) (Image, error) {
 			return nil, err
 		}
 		return driver, nil
-	case "vpshere":
+	case "vpshere", "vm", "vmx":
 		driver := VM{}
 		if err := decode(opts, &driver); err != nil {
 			return nil, err
@@ -294,7 +298,12 @@ func GetImage(opts map[string]interface{}) (Image, error) {
 			return nil, err
 		}
 		return driver, nil
-
+	case "iso":
+		driver := ISO{}
+		if err := decode(opts, &driver); err != nil {
+			return nil, err
+		}
+		return driver, nil
 	case "docker":
 		driver := DockerImage{}
 		if err := decode(opts, &driver); err != nil {
@@ -302,7 +311,20 @@ func GetImage(opts map[string]interface{}) (Image, error) {
 		}
 		return driver, nil
 	}
-	return nil, fmt.Errorf("unknown driver kind %s", opts["kind"])
+	return nil, fmt.Errorf("unknown input kind %s", opts["kind"])
+}
+
+func encode(in interface{}) (map[string]interface{}, error) {
+	data, err := json.Marshal(in)
+	if err != nil {
+		return nil, err
+	}
+	into := make(map[string]interface{})
+	if err := json.Unmarshal(data, &into); err != nil {
+		return nil, err
+	}
+	logger.Tracef("Encoded  %#v into  %#v", in, into)
+	return into, nil
 }
 
 func decode(opts map[string]interface{}, into interface{}) error {
@@ -324,54 +346,61 @@ func Merge(input Image, from Image) (Image, error) {
 		return input, nil
 	}
 	switch from.(type) {
-	case *AMI:
+	case AMI:
 		amiImage := input.(AMI)
-		if err := mergo.Merge(&amiImage, from.(*AMI)); err != nil {
+		if err := mergo.Merge(&amiImage, from.(AMI)); err != nil {
 			return nil, err
 		}
 		return amiImage, nil
-	case *ISO:
+	case ISO:
 		isoImage := input.(ISO)
-		if err := mergo.Merge(&isoImage, from.(*ISO)); err != nil {
+		if err := mergo.Merge(&isoImage, from.(ISO)); err != nil {
 			return nil, err
 		}
 		return isoImage, nil
-	case *DockerImage:
+	case DockerImage:
 		dockerImage := input.(DockerImage)
-		if err := mergo.Merge(&dockerImage, from.(*DockerImage)); err != nil {
+		if err := mergo.Merge(&dockerImage, from.(DockerImage)); err != nil {
 			return nil, err
 		}
 		return dockerImage, nil
-	case *DiskImage:
+	case DiskImage:
 		diskImage := input.(DiskImage)
-		if err := mergo.Merge(&diskImage, from.(*DiskImage)); err != nil {
+		if err := mergo.Merge(&diskImage, from.(DiskImage)); err != nil {
 			return nil, err
 		}
 		return diskImage, nil
-	case *GCEImage:
+	case GCEImage:
 		gceImage := input.(GCEImage)
-		if err := mergo.Merge(&gceImage, from.(*GCEImage)); err != nil {
+		if err := mergo.Merge(&gceImage, from.(GCEImage)); err != nil {
 			return nil, err
 		}
 		return gceImage, nil
-	case *AzureImage:
+	case AzureImage:
 		azureImage := input.(AzureImage)
-		if err := mergo.Merge(&azureImage, from.(*AzureImage)); err != nil {
+		if err := mergo.Merge(&azureImage, from.(AzureImage)); err != nil {
 			return nil, err
 		}
 		return azureImage, nil
-	case *OVA:
+	case OVA:
 		ovaImage := input.(OVA)
-		if err := mergo.Merge(&ovaImage, from.(*OVA)); err != nil {
+		if err := mergo.Merge(&ovaImage, from.(OVA)); err != nil {
 			return nil, err
 		}
 		return ovaImage, nil
-	case *VMDK:
+	case VMDK:
 		vmdk := input.(VMDK)
-		if err := mergo.Merge(&vmdk, from.(*VMDK)); err != nil {
+		if err := mergo.Merge(&vmdk, from.(VMDK)); err != nil {
 			return nil, err
 		}
 		return vmdk, nil
+	case VM:
+		vm := input.(VM)
+		if err := mergo.Merge(&vm, from.(VM)); err != nil {
+			return nil, err
+		}
+		return vm, nil
 	}
-	return nil, fmt.Errorf("unknown image type: %v -> %v", input, from)
+
+	return nil, fmt.Errorf("unknown image type: %#v -> %#v", input, from)
 }

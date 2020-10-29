@@ -1,0 +1,7 @@
+distroName: ubuntu1804
+cleanup: true
+kubernetes:
+  version: 1.15.3
+container_runtime:
+  type: containerd
+  version: 1.4.1

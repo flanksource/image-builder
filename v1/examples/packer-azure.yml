@@ -1,0 +1,41 @@
+input:
+  kind: azure
+engine:
+  kind: packer
+  version: 1.6.0
+  builders:
+    azure:
+packages:
+  - azure-cli #redhat-like
+commands:
+  - pip3 install -y azure-cli #debian-like
+package_repos:
+  - url: https://packages.microsoft.com/yumrepos/azure-cli
+    name: Azure CLI
+    gpgKey: https://packages.microsoft.com/keys/microsoft.asc
+    channel: stable
+    tags:
+      - redhat-like
+# - name: Ansible apt install chrony
+#   apt:
+#     name: chrony
+#     state: present
+
+# - name: Configure PTP
+#   lineinfile:
+#     path: /etc/chrony/chrony.conf
+#     create: yes
+#     line: refclock PHC /dev/ptp0 poll 3 dpoll -2 offset 0
+
+# - name: Ensure makestep parameter set as per Azure recommendation
+#   lineinfile:
+#     path: /etc/chrony/chrony.conf
+#     regexp: '^makestep'
+#     line: makestep 1.0 -1
+
+# - name: Enable chrony.service
+#   systemd:
+#     enabled: yes
+#     state: started
+#     daemon_reload: yes
+#     name: chrony.service

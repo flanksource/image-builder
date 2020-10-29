@@ -43,11 +43,14 @@ func (p Packer) Configure(ctx pkg.BuildContext) (api.Image, error) {
 		return nil, err
 	}
 
-	manifest, err := config.Build()
+	manifest, err := config.Build(ctx)
 	if err != nil {
 		return nil, err
 	}
 
+	if ctx.DryRun {
+		return nil, nil
+	}
 	logger.Prettyf("Finished build", manifest)
 	return manifest.GetImage()
 }

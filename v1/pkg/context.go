@@ -35,6 +35,7 @@ type BuildContext struct {
 	Variables map[string]interface{}
 	Defaults  map[string]map[string]interface{}
 	DryRun    bool
+	Raw       map[string]interface{}
 }
 
 func (ctx BuildContext) String() string {

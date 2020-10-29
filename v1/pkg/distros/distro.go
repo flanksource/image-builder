@@ -21,6 +21,7 @@ import (
 	"io/ioutil"
 	"strings"
 
+	"github.com/flanksource/commons/logger"
 	"gopkg.in/flanksource/yaml.v3"
 	"sigs.k8s.io/image-builder/api"
 	"sigs.k8s.io/image-builder/pkg/resources"
@@ -76,6 +77,7 @@ func GetDistributions() (map[string]Distribution, error) {
 		return nil, err
 	}
 
+	var distros []string
 	for _, info := range files {
 		file, _ := fs.Open("/distros/" + info.Name())
 		if err != nil {
@@ -94,8 +96,10 @@ func GetDistributions() (map[string]Distribution, error) {
 			if err != nil {
 				return nil, err
 			}
+			distros = append(distros, k)
 			Distributions[k] = distro
 		}
 	}
+	logger.Tracef("Loaded distributions: %v", distros)
 	return Distributions, nil
 }

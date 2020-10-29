@@ -26,6 +26,10 @@ $(BIN): pack
 .PHONY: pack
 pack: setup
 	esc  --prefix resources/ --ignore "static.go"  -o pkg/resources/static.go --pkg resources resources
+	cd ../images/capi && esc  --ignore "static.go"  -o ../../v1/pkg/resources/ansible/static.go --pkg ansible ansible
+
+
+
 
 clean:
 	rm -f dist/

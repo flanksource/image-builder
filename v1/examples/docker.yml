@@ -1,15 +1,4 @@
-distroName: ubuntu1804
 input:
   kind: docker
-output:
-  - kind: docker
 engine:
   kind: docker
-cleanup: false
-packages:
-  - systemd
-kubernetes:
-  version: 1.18.6
-container_runtime:
-  type: containerd
-  version: 1.3.4

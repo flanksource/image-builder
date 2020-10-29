@@ -1,0 +1,7 @@
+input:
+  kind: iso
+engine:
+  kind: packer
+  version: 1.6.0
+  builders:
+    vmware-iso: {}

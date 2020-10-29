@@ -1,0 +1,22 @@
+input:
+  kind: ami
+engine:
+  kind: packer
+  version: 1.6.0
+  builders:
+    amazon-ebs:
+      snapshot_groups: anv
+      launch_block_device_mappings:
+        volume_size: 200GB
+      ami_name: !!template image-builder-{{ (time.Now).Format "2006-01-02-150405" }}
+      access_key: !!env AWS_ACCESS_KEY_ID
+      secret_key: !!env AWS_SECRET_ACCESS_KEY
+packages:
+  - https://s3.amazonaws.com/ec2-downloads-windows/SSMAgent/latest/linux_amd64/amazon-ssm-agent.rpm #redhat-like !amazonLinux
+  - awscli #amazonLinux
+  - aws-ssm-agent #amazonLinux
+commands:
+  - pip3 install awscli #!amazonLinux
+  - snap install amazon-ssm-agent --classic #ubuntu
+  - systemctl enable snap.amazon-ssm-agent.amazon-ssm-agent.service #ubuntu
+  - systemctl disable hv-kvp-daemon #debian

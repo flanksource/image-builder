@@ -27,12 +27,12 @@ type PackerEngine struct {
 
 // packer build options are too many sync
 // TODO: import the packer config objects directly and workaround the mapstructure issues
-type PackerBuilderOptions map[string]interface{}
+type PackerBuilderOptions = map[string]interface{}
 
 type QemuOptions map[string]interface{}
 
 type KubernetesConfiguration struct {
-	Konfigadm konfigadm.Config `yaml:"konfigadm,omitempty`
+	Konfigadm konfigadm.Config `yaml:"konfigadm,omitempty"`
 
 	// The OS distribution configuration
 	DistroName string `yaml:"distroName"`
@@ -42,9 +42,6 @@ type KubernetesConfiguration struct {
 	Output []map[string]interface{} `yaml:"output"`
 
 	Engine map[string]interface{} `yaml:"engine,omitempty"`
-
-	Packer PackerEngine `yaml:"packer,omitempty"`
-	Qemu   QemuOptions  `yaml:"qemu,omitempty"`
 
 	// The version of kubernetes to install
 	Version string `yaml:"version,omitempty" json:"version,omitempty"`
